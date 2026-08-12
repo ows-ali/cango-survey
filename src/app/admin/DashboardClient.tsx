@@ -54,6 +54,14 @@ export default function DashboardClient() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } finally {
+      window.location.href = "/admin/login";
+    }
+  }
+
   const filtered = langFilter === "all" ? interviews : interviews.filter((i) => i.language === langFilter);
 
   const fmtDuration = (s: number | null) =>
@@ -68,9 +76,17 @@ export default function DashboardClient() {
           </h1>
           <p className="text-sm text-muted">Interview transcripts and AI-generated summaries.</p>
         </div>
-        <Link href="/" className="text-sm text-muted underline-offset-4 hover:underline">
-          ← Back to app
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-sm text-muted underline-offset-4 hover:underline">
+            ← Back to app
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="rounded-full border border-border px-4 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-foreground"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       {/* Stats */}
