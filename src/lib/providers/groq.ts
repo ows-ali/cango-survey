@@ -1,0 +1,58 @@
+import Groq from "groq-sdk";
+import { MODELS, VOICES } from "@/lib/constants";
+import type { ChatMessage, LlmProvider } from "./types";
+
+/**
+ * Groq provider (OpenAI-compatible). Free tier fallback for Gemini.
+ * Chat = Llama 3.3 70B, STT = Whisper turbo, TTS = Orpheus.
+ */
+export class GroqProvider implements LlmProvider {
+  readonly name = "groq" as const;
+  private client: Groq;
+
+  constructor(apiKey: string) {
+    this.client = new Groq({ apiKey });
+  }
+
+  async chat(messages: ChatMessage[]): Promise<string> {
+    const completion = await this.client.chat.completions.create({
+      model: MODELS.groq.llm,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      temperature: 0.5,
+    });
+
+    const text = completion.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new Error("Groq returned an empty chat response.");
+    }
+    return text;
+  }
+
+  async transcribe(audio: Buffer, mimeType: string): Promise<string> {
+    const copy = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength) as ArrayBuffer;
+    const file = new File([copy], `audio.${mimeType.split("/")[1] ?? "webm"}`, { type: mimeType });
+
+    const transcription = await this.client.audio.transcriptions.create({
+      model: MODELS.groq.stt,
+      file,
+    });
+
+    const text = transcription.text?.trim();
+    if (!text) {
+      throw new Error("Groq transcription returned empty text.");
+    }
+    return text;
+  }
+
+  async synthesize(text: string): Promise<{ audio: Buffer; mimeType: string }> {
+    const response = await this.client.audio.speech.create({
+      model: MODELS.groq.tts,
+      input: text,
+      voice: VOICES.groq,
+      response_format: "wav",
+    });
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return { audio: buffer, mimeType: "audio/wav" };
+  }
+}

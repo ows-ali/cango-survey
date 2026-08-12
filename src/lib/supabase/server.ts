@@ -1,0 +1,62 @@
+import { createClient } from "@supabase/supabase-js";
+import type { Interview, Message } from "@/types";
+
+/**
+ * Server-side Supabase client. Uses the service role key, so this must NEVER
+ * be imported from client components.
+ */
+export function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      "Missing Supabase environment variables (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)."
+    );
+  }
+
+  return createClient(url, key);
+}
+
+export type InterviewRow = Omit<Interview, "startedAt" | "completedAt" | "generatedSummary"> & {
+  started_at: string;
+  completed_at: string | null;
+  duration_seconds: number | null;
+  generated_summary: Interview["generatedSummary"];
+};
+
+export type MessageRow = Omit<
+  Message,
+  "createdAt" | "isFollowup" | "questionCategory" | "interviewId"
+> & {
+  interview_id: string;
+  created_at: string;
+  is_followup: boolean;
+  question_category: string | null;
+};
+
+export function mapInterview(row: InterviewRow): Interview {
+  return {
+    id: row.id,
+    status: row.status,
+    language: row.language,
+    startedAt: row.started_at,
+    completedAt: row.completed_at,
+    durationSeconds: row.duration_seconds,
+    generatedSummary: row.generated_summary,
+    provider: row.provider,
+  };
+}
+
+export function mapMessage(row: MessageRow): Message {
+  return {
+    id: row.id,
+    interviewId: row.interview_id,
+    role: row.role,
+    text: row.text,
+    createdAt: row.created_at,
+    questionCategory: row.question_category,
+    isFollowup: row.is_followup,
+    provider: row.provider,
+  };
+}
