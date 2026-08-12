@@ -16,10 +16,16 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const mimeType = file.type || "audio/webm";
 
+    console.log(`[STT] Received audio: size=${buffer.length} bytes, mimeType=${mimeType}, interviewId=${interviewId}`);
+
     const [{ result: transcript, provider }, audioUrl] = await Promise.all([
       transcribeWithFallback(buffer, mimeType),
-      interviewId ? uploadAudio(interviewId, buffer, mimeType) : Promise.resolve(null),
+      interviewId && buffer.length > 0
+        ? uploadAudio(interviewId, buffer, mimeType)
+        : Promise.resolve(null),
     ]);
+
+    console.log(`[STT] Completed: transcript="${transcript.slice(0, 30)}...", audioUrl=${audioUrl}`);
 
     return NextResponse.json({ transcript, language, provider, audioUrl });
   } catch (err) {

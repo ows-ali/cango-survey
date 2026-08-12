@@ -78,7 +78,7 @@ export function startRecording(stream: MediaStream): Promise<RecorderResult> {
       reject(new Error(`Recording failed: ${(e as any).error?.name ?? "unknown"}`));
     };
 
-    recorder.start();
+    recorder.start(250);
     activeRecorder = recorder;
   });
 }
