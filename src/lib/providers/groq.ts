@@ -29,8 +29,7 @@ export class GroqProvider implements LlmProvider {
   }
 
   async transcribe(audio: Buffer, mimeType: string): Promise<string> {
-    const copy = audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength) as ArrayBuffer;
-    const file = new File([copy], `audio.${mimeType.split("/")[1] ?? "webm"}`, { type: mimeType });
+    const file = new File([new Uint8Array(audio)], `audio.${mimeType.split("/")[1] ?? "webm"}`, { type: mimeType });
 
     const transcription = await this.client.audio.transcriptions.create({
       model: MODELS.groq.stt,
@@ -45,14 +44,18 @@ export class GroqProvider implements LlmProvider {
   }
 
   async synthesize(text: string): Promise<{ audio: Buffer; mimeType: string }> {
-    const response = await this.client.audio.speech.create({
-      model: MODELS.groq.tts,
-      input: text,
-      voice: VOICES.groq,
-      response_format: "wav",
-    });
+    try {
+      const response = await this.client.audio.speech.create({
+        model: MODELS.groq.tts,
+        input: text,
+        voice: VOICES.groq,
+        response_format: "wav",
+      });
 
-    const buffer = Buffer.from(await response.arrayBuffer());
-    return { audio: buffer, mimeType: "audio/wav" };
+      const buffer = Buffer.from(await response.arrayBuffer());
+      return { audio: buffer, mimeType: "audio/wav" };
+    } catch (err) {
+      throw new Error(`Groq TTS failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 }

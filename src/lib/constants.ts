@@ -38,9 +38,9 @@ export const PROVIDER_ORDER: ProviderName[] = ["gemini", "groq"];
 /** Model IDs for each provider. Centralised so they can be swapped easily. */
 export const MODELS: Record<ProviderName, { llm: string; stt: string; tts: string }> = {
   gemini: {
-    llm: "gemini-2.5-flash",
-    stt: "gemini-2.5-flash", // native audio understanding for transcription
-    tts: "gemini-2.5-flash-tts",
+    llm: "gemini-3.6-flash",
+    stt: "gemini-3.6-flash", // native audio understanding for transcription
+    tts: "gemini-3.1-flash-tts-preview",
   },
   groq: {
     llm: "llama-3.3-70b-versatile",

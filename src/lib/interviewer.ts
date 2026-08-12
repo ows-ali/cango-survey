@@ -82,17 +82,18 @@ Interviewing rules:
 }
 
 function parseDecision(raw: string): InterviewerDecision {
-  const parsed = extractJson<Partial<InterviewerDecision>>(raw);
+  const parsed = extractJson<Record<string, unknown>>(raw);
 
-  if (!parsed.question || typeof parsed.question !== "string") {
+  const question = typeof parsed.question === "string" ? parsed.question : undefined;
+  if (!question) {
     throw new Error("Interviewer response missing 'question' field.");
   }
 
   return {
-    question: parsed.question.trim(),
+    question: question.trim(),
     category: typeof parsed.category === "string" ? parsed.category : undefined,
-    isFollowup: Boolean(parsed.isFollowup),
-    endInterview: Boolean(parsed.endInterview),
+    isFollowup: Boolean(parsed.isFollowup ?? parsed.is_followup),
+    endInterview: Boolean(parsed.endInterview ?? parsed.end_interview),
   };
 }
 
