@@ -16,11 +16,15 @@ export function getSupabase() {
     );
   }
 
-  return createClient(url, key, {
+  const options: Record<string, unknown> = {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-    // @ts-ignore - ws transport for node environment
-    realtime: { transport: ws },
-  });
+  };
+
+  if (typeof globalThis.WebSocket === "undefined") {
+    options.realtime = { transport: ws };
+  }
+
+  return createClient(url, key, options);
 }
 
 export type InterviewRow = Omit<Interview, "startedAt" | "completedAt" | "generatedSummary"> & {
