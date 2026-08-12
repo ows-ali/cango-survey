@@ -223,6 +223,13 @@ export default function DashboardClient() {
                     {m.questionCategory ? ` · ${m.questionCategory}` : ""}
                   </p>
                   <p className="leading-relaxed">{m.text}</p>
+                  {m.audioRef && (
+                    <audio
+                      controls
+                      src={m.audioRef}
+                      className="mt-2.5 h-8 w-full outline-none"
+                    />
+                  )}
                 </div>
               ))}
             </div>

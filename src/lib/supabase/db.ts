@@ -31,6 +31,7 @@ export async function addMessage(input: {
   questionCategory?: string | null;
   isFollowup?: boolean;
   provider?: string | null;
+  audioRef?: string | null;
 }): Promise<Message> {
   const { data, error } = await getSupabase()
     .from("interview_messages")
@@ -41,6 +42,7 @@ export async function addMessage(input: {
       question_category: input.questionCategory ?? null,
       is_followup: input.isFollowup ?? false,
       provider: input.provider ?? null,
+      audio_ref: input.audioRef ?? null,
     })
     .select()
     .single();

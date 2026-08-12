@@ -12,6 +12,7 @@ export interface Message {
   questionCategory?: string | null;
   isFollowup?: boolean;
   provider?: string | null;
+  audioRef?: string | null;
 }
 
 /** Structured research summary extracted from the full transcript. */

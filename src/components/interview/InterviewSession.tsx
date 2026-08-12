@@ -49,7 +49,7 @@ export default function InterviewSession({ config }: { config: LangConfig }) {
 
   /** Advance the interview: save answer (if any), get next question, speak it. */
   const advance = useCallback(
-    async (answer?: string) => {
+    async (answer?: string, audioUrl?: string | null) => {
       if (busyRef.current) return;
       busyRef.current = true;
 
@@ -59,7 +59,7 @@ export default function InterviewSession({ config }: { config: LangConfig }) {
         setError(null);
 
         const id = interviewIdRef.current!;
-        const { decision, provider: p } = await askInterviewer(id, answer);
+        const { decision, provider: p } = await askInterviewer(id, answer, audioUrl);
 
         setProvider(p);
         setCurrentQuestion(decision.question);
@@ -118,14 +118,14 @@ export default function InterviewSession({ config }: { config: LangConfig }) {
       const { blob } = await startRecording(await requestMicrophone());
       setPhase("thinking");
 
-      const { transcript: text } = await transcribeAudio(blob);
+      const { transcript: text, audioUrl } = await transcribeAudio(blob, interviewIdRef.current);
       if (!text.trim()) {
         setError("I couldn't hear anything. Please try again or type your answer.");
         setPhase("ready");
         return;
       }
 
-      await advance(text.trim());
+      await advance(text.trim(), audioUrl);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Recording failed. Please try again.");

@@ -5,7 +5,7 @@ import { getLang } from "@/lib/languages";
 
 export async function POST(request: Request) {
   try {
-    const { interviewId, participantText } = await request.json();
+    const { interviewId, participantText, audioUrl } = await request.json();
 
     if (!interviewId || typeof interviewId !== "string") {
       return NextResponse.json({ error: "Missing interviewId" }, { status: 400 });
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
         interviewId,
         role: "participant",
         text: participantText.trim(),
+        audioRef: typeof audioUrl === "string" ? audioUrl : null,
       });
     }
 

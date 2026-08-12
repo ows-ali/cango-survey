@@ -27,12 +27,13 @@ export type InterviewRow = Omit<Interview, "startedAt" | "completedAt" | "genera
 
 export type MessageRow = Omit<
   Message,
-  "createdAt" | "isFollowup" | "questionCategory" | "interviewId"
+  "createdAt" | "isFollowup" | "questionCategory" | "interviewId" | "audioRef"
 > & {
   interview_id: string;
   created_at: string;
   is_followup: boolean;
   question_category: string | null;
+  audio_ref: string | null;
 };
 
 export function mapInterview(row: InterviewRow): Interview {
@@ -58,5 +59,6 @@ export function mapMessage(row: MessageRow): Message {
     questionCategory: row.question_category,
     isFollowup: row.is_followup,
     provider: row.provider,
+    audioRef: row.audio_ref,
   };
 }

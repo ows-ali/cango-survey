@@ -16,7 +16,8 @@ export async function createInterview(lang: LangConfig["code"]): Promise<Intervi
 
 export async function askInterviewer(
   interviewId: string,
-  participantText?: string
+  participantText?: string,
+  audioUrl?: string | null
 ): Promise<{
   decision: InterviewerDecision;
   provider: string;
@@ -25,7 +26,7 @@ export async function askInterviewer(
   const res = await fetch("/api/interview/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ interviewId, participantText }),
+    body: JSON.stringify({ interviewId, participantText, audioUrl }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error ?? "The interviewer had a problem.");
@@ -45,9 +46,14 @@ export async function finishInterview(
   return data;
 }
 
-export async function transcribeAudio(blob: Blob): Promise<{ transcript: string }> {
+export async function transcribeAudio(
+  blob: Blob,
+  interviewId?: string | null
+): Promise<{ transcript: string; audioUrl?: string | null }> {
   const form = new FormData();
   form.append("audio", blob, "recording.webm");
+  if (interviewId) form.append("interviewId", interviewId);
+
   const res = await fetch("/api/stt", {
     method: "POST",
     body: form,
