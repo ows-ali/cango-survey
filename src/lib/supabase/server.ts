@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 import type { Interview, Message } from "@/types";
 
 /**
@@ -15,7 +16,11 @@ export function getSupabase() {
     );
   }
 
-  return createClient(url, key);
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    // @ts-ignore - ws transport for node environment
+    realtime: { transport: ws },
+  });
 }
 
 export type InterviewRow = Omit<Interview, "startedAt" | "completedAt" | "generatedSummary"> & {

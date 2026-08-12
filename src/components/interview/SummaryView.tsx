@@ -6,9 +6,11 @@ import type { ResearchSummary } from "@/types";
 export default function SummaryView({
   summary,
   targetLanguage,
+  langCode,
 }: {
   summary: ResearchSummary;
   targetLanguage: string;
+  langCode?: string;
 }) {
   return (
     <div className="flex flex-col items-center text-center">
@@ -58,7 +60,7 @@ export default function SummaryView({
       </div>
 
       <Link
-        href="/"
+        href={langCode ? `/?lang=${langCode}` : "/"}
         className="mt-8 text-sm text-muted underline-offset-4 hover:underline"
       >
         Return home

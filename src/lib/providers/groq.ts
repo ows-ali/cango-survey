@@ -29,7 +29,12 @@ export class GroqProvider implements LlmProvider {
   }
 
   async transcribe(audio: Buffer, mimeType: string): Promise<string> {
-    const file = new File([new Uint8Array(audio)], `audio.${mimeType.split("/")[1] ?? "webm"}`, { type: mimeType });
+    const cleanMime = (mimeType || "audio/webm").split(";")[0].trim().toLowerCase();
+    const rawExt = cleanMime.split("/")[1] ?? "webm";
+    const allowed = ["flac", "mp3", "mp4", "mpeg", "mpga", "m4a", "ogg", "opus", "wav", "webm"];
+    const ext = allowed.includes(rawExt) ? rawExt : "webm";
+
+    const file = new File([new Uint8Array(audio)], `audio.${ext}`, { type: cleanMime });
 
     const transcription = await this.client.audio.transcriptions.create({
       model: MODELS.groq.stt,

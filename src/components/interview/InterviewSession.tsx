@@ -209,7 +209,7 @@ export default function InterviewSession({ config }: { config: LangConfig }) {
         )}
 
         {phase === "finished" && summary && (
-          <SummaryView summary={summary} targetLanguage={targetLanguage} />
+          <SummaryView summary={summary} targetLanguage={targetLanguage} langCode={config.code} />
         )}
 
         {phase !== "consent" && phase !== "finished" && (

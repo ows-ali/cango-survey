@@ -42,6 +42,7 @@ export class GeminiProvider implements LlmProvider {
   }
 
   async transcribe(audio: Buffer, mimeType: string): Promise<string> {
+    const cleanMime = (mimeType || "audio/webm").split(";")[0].trim();
     const response = await this.client.models.generateContent({
       model: MODELS.gemini.stt,
       contents: [
@@ -50,7 +51,7 @@ export class GeminiProvider implements LlmProvider {
           parts: [
             {
               inlineData: {
-                mimeType,
+                mimeType: cleanMime,
                 data: audio.toString("base64"),
               },
             },
